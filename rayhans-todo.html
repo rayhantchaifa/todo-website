@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rayhan's To-Do List</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      text-align: center;
+    }
+
+    h1 {
+      color: #ffffff;
+      margin-bottom: 5px;
+    }
+
+    #owner-name {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    #troll-face {
+      width: 80px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
+
+    #new-task {
+      width: 70%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #444;
+      background: #1e1e1e;
+      color: white;
+      border-radius: 4px;
+    }
+
+    #add-task-btn, #surprise-btn {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin: 10px 5px;
+      background: #00b894;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #add-task-btn:hover, #surprise-btn:hover {
+      background: #019875;
+    }
+
+    ul#task-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    ul#task-list li {
+      background: #1f1f1f;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    ul#task-list li.completed span {
+      text-decoration: line-through;
+      color: #777;
+    }
+
+    button.delete-btn {
+      background: #d63031;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button.delete-btn:hover {
+      background: #b71c1c;
+    }
+
+    #socials {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #bbb;
+    }
+
+    #socials a {
+      margin: 0 8px;
+      color: #00cec9;
+      text-decoration: none;
+    }
+
+    #socials a:hover {
+      text-decoration: underline;
+    }
+
+    #popup {
+      margin-top: 20px;
+      font-style: italic;
+      color: #81ecec;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <img id="troll-face" src="https://upload.wikimedia.org/wikipedia/en/7/70/Trollface_non-free.png" alt="Troll Face" />
+  <h1>Rayhan's To-Do List</h1>
+  <div id="owner-name">Created by Rayhan</div>
+
+  <input type="text" id="new-task" placeholder="Add a new task..." />
+  <button id="add-task-btn">Add</button>
+  <button id="surprise-btn">Surprise Me</button>
+
+  <ul id="task-list"></ul>
+
+  <div id="popup"></div>
+
+  <div id="socials">
+    🔗 Connect with me:<br>
+    <a href="https://github.com/RTchaifa7" target="_blank">GitHub</a> |
+    <a href="https://twitter.com/RTchaifa7" target="_blank">Twitter</a> |
+    <a href="https://paypal.me/RTchaifa7" target="_blank">PayPal</a>
+  </div>
+
+  <script>
+    const addBtn = document.getElementById('add-task-btn');
+    const taskInput = document.getElementById('new-task');
+    const taskList = document.getElementById('task-list');
+    const surpriseBtn = document.getElementById('surprise-btn');
+    const popup = document.getElementById('popup');
+
+    const quotes = [
+      // Normal quotes
+      "Stay ready so you don’t have to get ready.",
+      "One more task = one step closer.",
+      "You're not lazy, you're just charging up.",
+      "Take breaks, but don't break the habit.",
+      "Productivity is the new flex. 💪",
+      "No one's watching... do it anyway.",
+      // Troll quotes – low chance
+      ..."".padEnd(20, "_").split("").map(() => {
+        const trollQuotes = [
+          "Gooning to femboys is perfect",
+          "Yes! I goon and support Arsenal! How did you know?",
+          "Arsenal is the best team"
+        ];
+        return trollQuotes[Math.floor(Math.random() * trollQuotes.length)];
+      })
+    ];
+
+    // Load saved tasks
+    window.onload = function () {
+      const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      savedTasks.forEach(task => addTask(task.text, task.completed));
+    };
+
+    // Save tasks
+    function saveTasks() {
+      const tasks = [];
+      taskList.querySelectorAll('li').forEach(li => {
+        tasks.push({
+          text: li.querySelector('span').textContent,
+          completed: li.classList.contains('completed')
+        });
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Add task
+    addBtn.addEventListener('click', () => {
+      const taskText = taskInput.value.trim();
+      if (taskText === '') {
+        alert('Enter a task bruh.');
+        return;
+      }
+      addTask(taskText, false);
+      taskInput.value = '';
+      taskInput.focus();
+      saveTasks();
+    });
+
+    // Add task function
+    function addTask(text, completed) {
+      const li = document.createElement('li');
+      if (completed) li.classList.add('completed');
+
+      const span = document.createElement('span');
+      span.textContent = text;
+      span.addEventListener('click', () => {
+        li.classList.toggle('completed');
+        saveTasks();
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.className = 'delete-btn';
+      delBtn.addEventListener('click', () => {
+        taskList.removeChild(li);
+        saveTasks();
+      });
+
+      li.appendChild(span);
+      li.appendChild(delBtn);
+      taskList.appendChild(li);
+    }
+
+    // Enter key shortcut
+    taskInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addBtn.click();
+      }
+    });
+
+    // Surprise button
+    surpriseBtn.addEventListener('click', () => {
+      const random = quotes[Math.floor(Math.random() * quotes.length)];
+      popup.style.display = 'block';
+      popup.textContent = `"${random}"`;
+      setTimeout(() => popup.style.display = 'none', 4000);
+    });
+  </script>
+</body>
+</html>
